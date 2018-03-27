@@ -1,11 +1,3 @@
-function Make2DArray(cols, rows) {
-    let arr = new Array(cols);
-    for(let i = 0; i < arr.length; i++) {
-        arr[i] = new Array(rows);
-    }
-    return arr;
-}
-
 let grid;
 let cols;
 let rows;
@@ -75,4 +67,12 @@ function countNeighbors(grid, x, y) {
     }
     sum -= grid[x][y];
     return sum;
+}
+
+function Make2DArray(cols, rows) {
+    let arr = new Array(cols);
+    for(let i = 0; i < arr.length; i++) {
+        arr[i] = new Array(rows);
+    }
+    return arr;
 }
