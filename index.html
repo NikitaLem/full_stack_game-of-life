@@ -4,17 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" type="text/css" href="index.css">
     <title>GameOfLife</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.6.0/p5.js"></script>
-    <script src="gameOfLife.js"></script>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-        }
-    </style>
 </head>
 <body>
-    
+    <section class="container">
+        <input class="btn-generate" name="btn-generate" type="button" value="СОЗДАТЬ"/>
+        <input class="btn-start" name="btn-start" type="button" value="СТАРТ"/>
+        <input class="btn-stop" name="btn-stop" type="button" value="СТОП"/>
+        <section class="control-panel">
+            <label for="table-rows-count"> Количество строк: </label>
+            <input class="table-rows-count" name="table-rows-count" id="table-rows-count" type="number" value="35"/>
+            <label for="table-cols-count"> Количество столбцов: </label>
+            <input class="table-cols-count" name="table-cols-count" id="table-cols-count" type="number" value="35"/>
+            <label for="cell-height"> Высота ячейки: </label>
+            <input class="cell-height" name="cell-height" id="cell-height" type="number" value="10"/>
+            <label for="cell-width"> Ширина ячейки: </label>
+            <input class="cell-width" name="cell-width" id="cell-width" type="number" value="10"/>
+            <label for="speed"> Скорость: </label>
+            <input class="speed" name="speed" id="speed" type="range" min="50" max="1000" step="50" value="50"/>
+            <label for="alive-to-empty"> Мертвые/Живые клетки: </label>
+            <input class="alive-to-empty" name="alive-to-empty" id="alive-to-empty" type="number" value="1"/>
+        </section>
+    </section>
+    <script src="index.js"></script>
 </body>
 </html>

@@ -1,0 +1,10 @@
+{
+    "undef": true,
+    "unused": true,
+    "esversion": 6,
+    "forin": true,
+    "latedef": "nofunc",
+    "nocomma": true,
+    "nonew": true,
+    "varstmt": true
+  }
