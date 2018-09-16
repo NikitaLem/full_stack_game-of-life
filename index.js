@@ -9,37 +9,40 @@
     const editSpeed = document.querySelector('.speed');
     const editRel = document.querySelector('.alive-to-empty');
   
-    let isRunning = false;
-    let gameSpeed = 50;
+    const options = {
+      rowsValue: 35,
+      colsValue: 35,
+      cellHeight: 10,
+      cellWidth: 10,
+      gameRatio: 1,
+      gameSpeed: 50,
+      isRunning: false,
+    };
+    
     let gameTimer;
-    let rowsValue = 35;
-    let colsValue = 35;
-    let gameRatio = 1;
   
     //===========================SET SIZES===================================
     const setSizes = function(event) {
-      const target = event.target;
-  
       const gamesCells = [...document.querySelectorAll('.cell')];
-  
-      if (target === editHeight) {
-        gamesCells.forEach((item) => {
-          item.style.height = target.value + 'px';
-        });
+
+      if (event) {
+        const target = event.target;
+        
+        if (target === editHeight) options.cellHeight = target.value;
+        if (target === editWidth) options.cellWidth = target.value;
       }
   
-      if (target === editWidth) {
-        gamesCells.forEach((item) => {
-          item.style.width = target.value + 'px';
-        });
-      }
+      gamesCells.forEach((item) => {
+        item.style.height = options.cellHeight + 'px';
+        item.style.width = options.cellWidth + 'px';
+      });
     };
   
-    //=========================SET ALIVE TO EMPTYL===========================
+    //=========================SET ALIVE TO EMPTY===========================
     const setRel = function(event) {
       const target = event.target;
   
-      gameRatio = target.value;
+      options.gameRatio = target.value;
     };
   
     //=======================CHANGE-STATUS-OF-CELL===========================
@@ -61,17 +64,17 @@
   
       if (event) {
         const target = event.target;
-        if (target === editRows) rowsValue = target.value;
-        if (target === editCols) colsValue = target.value;
+        if (target === editRows) options.rowsValue = target.value;
+        if (target === editCols) options.colsValue = target.value;
       }
   
       table = document.createElement('TABLE');
       table.setAttribute('id', 'table-of-life');
   
-      for (i = 0; i < rowsValue; i += 1) {
+      for (i = 0; i < options.rowsValue; i += 1) {
         let newTr = document.createElement('TR');
         
-        for (j = 0; j < colsValue; j += 1) {
+        for (j = 0; j < options.colsValue; j += 1) {
           let newTd = document.createElement('TD');
           newTd.classList.add('cell');
           newTr.append(newTd);
@@ -81,6 +84,8 @@
       }
   
       container.prepend(table);
+
+      setSizes();
   
       table.addEventListener('click', toggleLive, false);
     };
@@ -92,7 +97,7 @@
   
       gamesCells.forEach((item) => {
         item.classList.remove('alive');
-        randNum = Math.round(Math.random() * gameRatio);
+        randNum = Math.round(Math.random() * options.gameRatio);
         if (randNum === 1) item.classList.add('alive');
       });
     };
@@ -105,25 +110,41 @@
       let liveCount;
   
       const getAliveNum = function(row, col) {
+        let controlRow, controlCol;
         liveCount = 0;
-    
-        if (rows[row - 1].cells[col - 1].classList.contains('alive')) liveCount += 1;
-        if (rows[row - 1].cells[col].classList.contains('alive')) liveCount += 1;
-        if (rows[row - 1].cells[col + 1].classList.contains('alive')) liveCount += 1;
-        if (rows[row].cells[col - 1].classList.contains('alive')) liveCount += 1;
-        if (rows[row].cells[col + 1].classList.contains('alive')) liveCount += 1;
-        if (rows[row + 1].cells[col - 1].classList.contains('alive')) liveCount += 1;
-        if (rows[row + 1].cells[col].classList.contains('alive')) liveCount += 1;
-        if (rows[row + 1].cells[col + 1].classList.contains('alive')) liveCount += 1;
-  
+        
+        for (let k = -1; k < 2; k += 1) {
+          for (let l = -1; l < 2; l += 1) {
+            if (k === 0 && l === 0) continue;
+
+            if (row === 0 && k === -1) {
+             controlRow = options.rowsValue - 1; 
+            } else if ((row === options.rowsValue - 1) && k === 1) {
+              controlRow = 0;
+            } else {
+              controlRow = row + k;
+            }
+            
+            if (col === 0 && l === -1) {
+              controlCol = options.colsValue - 1; 
+             } else if ((col === options.colsValue - 1) && l === 1) {
+               controlCol = 0;
+             } else {
+               controlCol = col + l;
+             }
+
+            if (rows[controlRow].cells[controlCol].classList.contains('alive')) liveCount += 1;
+          }
+        }
+
         return liveCount;
       };
   
-      for (i = 1; i < rows.length - 1; i += 1) {
-        for (j = 1; j < rows[i].cells.length - 1; j += 1) {
+      for (i = 0; i < rows.length; i += 1) {
+        for (j = 0; j < rows[i].cells.length; j += 1) {
           getAliveNum(i, j);
   
-          if (!rows[i].cells[j].classList.contains('alive') && (liveCount === 3)) { 
+          if (!rows[i].cells[j].classList.contains('alive') && (liveCount === 3)) {
             rows[i].cells[j].classList.toggle('alive');
           } else if (rows[i].cells[j].classList.contains('alive') && (liveCount < 2 || liveCount > 3)) {
             rows[i].cells[j].classList.toggle('alive');
@@ -134,13 +155,13 @@
   
     const start = function startGameOfLife() {
       calcOneStep();
-      gameTimer = setInterval(calcOneStep, gameSpeed);
-      isRunning = true;
+      gameTimer = setInterval(calcOneStep, options.gameSpeed);
+      options.isRunning = true;
     };
   
     const stop = function stopGameOfLife() {
       clearInterval(gameTimer);
-      isRunning = false;
+      options.isRunning = false;
     };
   
     const setSpeed = function(event) {
@@ -148,8 +169,8 @@
   
       clearInterval(gameTimer);
   
-      gameSpeed = target.value;
-      if (isRunning) start();
+      options.gameSpeed = target.value;
+      if (options.isRunning) start();
     };
   
     renderMap();

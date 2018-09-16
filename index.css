@@ -2,20 +2,27 @@ body {
     margin: 0;
     padding: 0 0 20px 0;
 }
-table, tr, td {
+table {
+    margin: 20px 0 0 15px;
+    border-collapse: collapse;
+}
+tr, td {
     margin: 0;
     padding: 0;
 }
 td {
     height: 10px;
     width: 10px;
-    background: #f06a1c
+    background: #3f3f3f
 }
 .cell {
     cursor: pointer;
 }
 .alive {
-    background: #33b300;
+    background: #4a1cb6;
+}
+.btn-container {
+    margin: 10px 0 0 15px;
 }
 .control-panel {
     display: flex;
