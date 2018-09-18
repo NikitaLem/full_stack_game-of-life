@@ -1,7 +1,9 @@
-(function() {
+const gameOfLife = function() {
     const btnGenerate = document.querySelector('.btn-generate');
     const btnStart = document.querySelector('.btn-start');
     const btnStop = document.querySelector('.btn-stop');
+    const btnSave = document.querySelector('.btn-save');
+    const btnLoad = document.querySelector('.btn-load');
     const editRows = document.querySelector('.table-rows-count');
     const editCols = document.querySelector('.table-cols-count');
     const editHeight = document.querySelector('.cell-height');
@@ -17,9 +19,8 @@
       gameRatio: 1,
       gameSpeed: 50,
       isRunning: false,
+      gameTimer: 0,
     };
-    
-    let gameTimer;
   
     //===========================SET SIZES===================================
     const setSizes = function(event) {
@@ -56,6 +57,7 @@
   
     //========================RENDER CUSTOM MAP=============================
     const renderMap = function(event) {
+
       let table = document.getElementById('table-of-life');
       if (table) table.remove();
   
@@ -88,6 +90,73 @@
       setSizes();
   
       table.addEventListener('click', toggleLive, false);
+    };
+
+    //==========================SET OPTIONS==================================
+    const setOptions = function(savedOptions) {
+      Object.keys(options).forEach((key) => {
+        options[key] = savedOptions[key];
+      });
+    };
+
+    //===========================SAVE GAME===================================
+    const saveGame = function() {
+      const gamesCells = [...document.querySelectorAll('.cell')];
+      const savedMap = [];
+
+      gamesCells.forEach((cell) => {
+        if (cell.classList.contains('alive')) {
+          savedMap.push(1);
+        } else savedMap.push(0);
+      });
+
+      try {
+        const optionsJSON = JSON.stringify(options);
+        localStorage.setItem('savedOptions', optionsJSON);
+        const savedMapJSON = JSON.stringify(savedMap);
+        localStorage.setItem('savedMap', savedMapJSON); 
+      } catch (error) {
+        console.log(`Can't write to local storage! ${error}`);
+      }
+    };
+
+    //===========================LOAD GAME===================================
+    const loadMap = function() {
+      const gamesCells = [...document.querySelectorAll('.cell')];
+      let savedMap = [];
+
+      try {
+        savedMap = JSON.parse(localStorage.getItem('savedMap'));
+        console.log(savedMap);
+        savedMap.forEach((cell, index) => {
+          if (parseInt(cell) === 1) gamesCells[index].classList.add('alive');
+        });
+      } catch (error) {
+        console.log(`Can't read local storage! ${error}`);
+      }
+    };
+
+    const loadOptions = function(event) {
+      let savedOptions = {};
+    
+      try {
+        savedOptions = JSON.parse(localStorage.getItem('savedOptions'));
+        setOptions(savedOptions);
+
+        editRows.value = options.rowsValue;
+        editCols.value = options.colsValue;
+        editHeight.value = options.cellHeight;
+        editWidth.value = options.cellWidth;
+        editSpeed.value = options.gameSpeed;
+        editRel.value = options.gameRatio;
+      } catch (error) {
+        console.log(`Can't read local storage! ${error}`);
+      }
+
+      if (event) { 
+        renderMap();
+        loadMap();
+      }
     };
   
     //========================MAP-GENERATOR=================================
@@ -155,19 +224,19 @@
   
     const start = function startGameOfLife() {
       calcOneStep();
-      gameTimer = setInterval(calcOneStep, options.gameSpeed);
+      options.gameTimer = setInterval(calcOneStep, options.gameSpeed);
       options.isRunning = true;
     };
   
     const stop = function stopGameOfLife() {
-      clearInterval(gameTimer);
+      clearInterval(options.gameTimer);
       options.isRunning = false;
     };
   
     const setSpeed = function(event) {
       const target = event.target;
   
-      clearInterval(gameTimer);
+      clearInterval(options.gameTimer);
   
       options.gameSpeed = target.value;
       if (options.isRunning) start();
@@ -178,11 +247,14 @@
     btnGenerate.addEventListener('click', generateMap, false);
     btnStart.addEventListener('click', start, false);
     btnStop.addEventListener('click', stop, false);
+    btnSave.addEventListener('click', saveGame, false);
+    btnLoad.addEventListener('click', loadOptions, false);
     editRows.addEventListener('blur', renderMap, false);
     editCols.addEventListener('blur', renderMap, false);
     editHeight.addEventListener('blur', setSizes, false);
     editWidth.addEventListener('blur', setSizes, false);
     editSpeed.addEventListener('change', setSpeed, false);
     editRel.addEventListener('blur', setRel, false);
-  }());
-  
+  };
+
+  gameOfLife();

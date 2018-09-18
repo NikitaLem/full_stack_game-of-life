@@ -4,7 +4,7 @@ body {
 }
 table {
     margin: 20px 0 0 15px;
-    border-collapse: collapse;
+    border-spacing: 1px;
 }
 tr, td {
     margin: 0;
