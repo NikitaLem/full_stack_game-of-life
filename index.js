@@ -237,12 +237,12 @@ const gameOfLife = function() {
     });
   };
   
-  const start = function startGameOfLife() {
-    if (!options.isRunning) {
-      calcOneStep();
-      options.gameTimer = setInterval(calcOneStep, options.gameSpeed);
-      options.isRunning = true;
-    } else return;
+  const start = function startGameOfLife(event) {
+    if (event && options.isRunning) return;
+
+    calcOneStep();
+    options.gameTimer = setInterval(calcOneStep, options.gameSpeed);
+    options.isRunning = true;
   };
 
   const stop = function stopGameOfLife() {
@@ -256,7 +256,6 @@ const gameOfLife = function() {
     clearInterval(options.gameTimer);
 
     options.gameSpeed = options._SPEEDCONST - target.value;
-    console.log(options.gameSpeed + ' ' + target.value);
     if (options.isRunning) start();
   };
 
