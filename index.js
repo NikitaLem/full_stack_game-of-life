@@ -10,6 +10,10 @@ const gameOfLife = function() {
   const editWidth = document.querySelector('.cell-width');
   const editSpeed = document.querySelector('.speed');
   const editRel = document.querySelector('.alive-to-empty');
+
+  let gamesCells;
+  let table;
+  let rows;
   
   const options = {
     _SPEEDCONST: 1050,
@@ -25,8 +29,6 @@ const gameOfLife = function() {
   
   //===========================SET SIZES===================================
   const setSizes = function(event) {
-    const gamesCells = [...document.querySelectorAll('.cell')];
-
     if (event) {
       const target = event.target;
       
@@ -59,7 +61,7 @@ const gameOfLife = function() {
   //========================RENDER CUSTOM MAP=============================
   const renderMap = function(event) {
 
-    let table = document.getElementById('table-of-life');
+    table = document.getElementById('table-of-life');
     if (table) table.remove();
 
     const container = document.querySelector('.container');
@@ -87,6 +89,8 @@ const gameOfLife = function() {
     }
 
     container.prepend(table);
+    rows = [...table.rows];
+    gamesCells = [...document.querySelectorAll('.cell')];
 
     setSizes();
 
@@ -102,7 +106,6 @@ const gameOfLife = function() {
 
   //===========================SAVE GAME===================================
   const saveGame = function() {
-    const gamesCells = [...document.querySelectorAll('.cell')];
     const savedMap = [];
 
     gamesCells.forEach((cell) => {
@@ -123,7 +126,6 @@ const gameOfLife = function() {
 
   //===========================LOAD GAME===================================
   const loadMap = function() {
-    const gamesCells = [...document.querySelectorAll('.cell')];
     let savedMap = [];
 
     try {
@@ -161,7 +163,6 @@ const gameOfLife = function() {
   
   //========================MAP-GENERATOR=================================
   const generateMap = function() {
-    const gamesCells = [...document.querySelectorAll('.cell')];
     let randNum;
 
     gamesCells.forEach((item) => {
@@ -172,52 +173,48 @@ const gameOfLife = function() {
   };
 
   //==============================START GAME===============================
-  const calcOneStep = function() {
-    const table = document.getElementById('table-of-life');
-    const rows = [...table.rows];
-    let i, j;
-    let liveCount;
-    const maskArray = [];
-    const gamesCells = [...document.querySelectorAll('.cell')];
+  const getAliveNum = function(row, col) {
+    let controlRow, controlCol;
+    let liveCount = 0;
+    
+    for (let k = -1; k < 2; k += 1) {
+      for (let l = -1; l < 2; l += 1) {
+        if (k === 0 && l === 0) continue;
 
-    const getAliveNum = function(row, col) {
-      let controlRow, controlCol;
-      liveCount = 0;
-      
-      for (let k = -1; k < 2; k += 1) {
-        for (let l = -1; l < 2; l += 1) {
-          if (k === 0 && l === 0) continue;
-
-          if (row === 0 && k === -1) {
-            controlRow = options.rowsValue - 1; 
-          } else if ((row === options.rowsValue - 1) && k === 1) {
-            controlRow = 0;
-          } else {
-            controlRow = row + k;
-          }
-          
-          if (col === 0 && l === -1) {
-            controlCol = options.colsValue - 1; 
-            } else if ((col === options.colsValue - 1) && l === 1) {
-              controlCol = 0;
-            } else {
-              controlCol = col + l;
-            }
-
-          if (rows[controlRow].cells[controlCol].classList.contains('alive')) liveCount += 1;
+        if (row === 0 && k === -1) {
+          controlRow = options.rowsValue - 1; 
+        } else if ((row === options.rowsValue - 1) && k === 1) {
+          controlRow = 0;
+        } else {
+          controlRow = row + k;
         }
+        
+        if (col === 0 && l === -1) {
+          controlCol = options.colsValue - 1; 
+          } else if ((col === options.colsValue - 1) && l === 1) {
+            controlCol = 0;
+          } else {
+            controlCol = col + l;
+          }
+
+        if (rows[controlRow].cells[controlCol].classList.contains('alive')) liveCount += 1;
       }
+    }
 
-      return liveCount;
-    };
+    return liveCount;
+  };
 
-    const isItWillLive = function(indexRow, indexCol) {
-      return (!rows[indexRow].cells[indexCol].classList.contains('alive') && (getAliveNum(indexRow, indexCol) === 3));
-    };
+  const isItWillLive = function(indexRow, indexCol) {
+    return (!rows[indexRow].cells[indexCol].classList.contains('alive') && (getAliveNum(indexRow, indexCol) === 3));
+  };
 
-    const isItStillAlive = function(indexRow, indexCol) {
-      return (rows[indexRow].cells[indexCol].classList.contains('alive') && (getAliveNum(indexRow, indexCol) === 2 || getAliveNum(indexRow, indexCol) === 3));
-    };
+  const isItStillAlive = function(indexRow, indexCol) {
+    return (rows[indexRow].cells[indexCol].classList.contains('alive') && (getAliveNum(indexRow, indexCol) === 2 || getAliveNum(indexRow, indexCol) === 3));
+  };
+
+  const calcOneStep = function() {
+    let i, j;
+    const maskArray = [];
 
     for (i = 0; i < rows.length; i += 1) {
       for (j = 0; j < rows[i].cells.length; j += 1) {
