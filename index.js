@@ -127,7 +127,6 @@ const gameOfLife = function() {
 
       try {
         savedMap = JSON.parse(localStorage.getItem('savedMap'));
-        console.log(savedMap);
         savedMap.forEach((cell, index) => {
           if (parseInt(cell) === 1) gamesCells[index].classList.add('alive');
         });
@@ -177,6 +176,8 @@ const gameOfLife = function() {
       const rows = [...table.rows];
       let i, j;
       let liveCount;
+      const maskArray = [];
+      const gamesCells = [...document.querySelectorAll('.cell')];
   
       const getAliveNum = function(row, col) {
         let controlRow, controlCol;
@@ -208,18 +209,31 @@ const gameOfLife = function() {
 
         return liveCount;
       };
+
+      const isItWillLive = function(indexRow, indexCol) {
+        return (!rows[indexRow].cells[indexCol].classList.contains('alive') && (getAliveNum(indexRow, indexCol) === 3));
+      };
+
+      const isItStillAlive = function(indexRow, indexCol) {
+        return (rows[indexRow].cells[indexCol].classList.contains('alive') && (getAliveNum(indexRow, indexCol) === 2 || getAliveNum(indexRow, indexCol) === 3));
+      };
   
       for (i = 0; i < rows.length; i += 1) {
         for (j = 0; j < rows[i].cells.length; j += 1) {
-          getAliveNum(i, j);
-  
-          if (!rows[i].cells[j].classList.contains('alive') && (liveCount === 3)) {
-            rows[i].cells[j].classList.toggle('alive');
-          } else if (rows[i].cells[j].classList.contains('alive') && (liveCount < 2 || liveCount > 3)) {
-            rows[i].cells[j].classList.toggle('alive');
-          }
+          
+          if (isItWillLive(i, j)) {
+            maskArray.push(1);
+          } else if (isItStillAlive(i, j)) {
+            maskArray.push(1);
+          } else maskArray.push(0);
         }
       }
+      
+      gamesCells.forEach((cell, index) => {
+        if (parseInt(maskArray[index]) === 1) {
+          cell.classList.add('alive');
+        } else cell.classList.remove('alive');
+      });
     };
   
     const start = function startGameOfLife() {
