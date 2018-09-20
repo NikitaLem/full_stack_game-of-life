@@ -30,8 +30,8 @@ const gameOfLife = function() {
     if (event) {
       const target = event.target;
       
-      if (target === editHeight) options.cellHeight = target.value;
-      if (target === editWidth) options.cellWidth = target.value;
+      if (target === editHeight) options.cellHeight = parseInt(target.value);
+      if (target === editWidth) options.cellWidth = parseInt(target.value);
     }
 
     gamesCells.forEach((item) => {
@@ -44,7 +44,7 @@ const gameOfLife = function() {
   const setRel = function(event) {
     const target = event.target;
 
-    options.gameRatio = target.value;
+    options.gameRatio = parseInt(target.value);
   };
 
   //=======================CHANGE-STATUS-OF-CELL===========================
@@ -97,7 +97,7 @@ const gameOfLife = function() {
   //==========================SET OPTIONS==================================
   const setOptions = function(savedOptions) {
     Object.keys(options).forEach((key) => {
-      if (key !== 'isRunning' && key !== 'gameTimer') options[key] = parseInt(savedOptions[key]);
+      options[key] = savedOptions[key];
     });
   };
 
@@ -172,14 +172,15 @@ const gameOfLife = function() {
   //==============================START GAME===============================
   const getAliveNum = function(index) {
     const neighborhood = {};
+    const numberOfCells = gamesCells.length;
     let liveCount = 0;
 
     if (index - options.colsValue < 0) {
-      neighborhood.topCenter = gamesCells.length - options.colsValue + index;
+      neighborhood.topCenter = numberOfCells - options.colsValue + index;
     } else neighborhood.topCenter = index - options.colsValue;
 
-    if (index + options.colsValue >= gamesCells.length) {
-      neighborhood.bottomCenter = options.colsValue - gamesCells.length % index;
+    if (index + options.colsValue >= numberOfCells) {
+      neighborhood.bottomCenter = options.colsValue - numberOfCells % index;
     } else neighborhood.bottomCenter = index + options.colsValue;
 
     if (index % options.colsValue === 0) {
@@ -199,10 +200,10 @@ const gameOfLife = function() {
     }
 
     if (index === 0) {
-      neighborhood.centerLeft = gamesCells.length - 1;
+      neighborhood.centerLeft = numberOfCells - 1;
     } else neighborhood.centerLeft = index - 1;
 
-    if (index === gamesCells.length - 1) {
+    if (index === numberOfCells - 1) {
       neighborhood.centerRight = 0;
     } else neighborhood.centerRight = index + 1;
 
@@ -257,7 +258,7 @@ const gameOfLife = function() {
 
     clearInterval(options.gameTimer);
 
-    options.gameSpeed = options._SPEEDCONST - target.value;
+    options.gameSpeed = options._SPEEDCONST - parseInt(target.value);
     if (options.isRunning) start();
   };
 
