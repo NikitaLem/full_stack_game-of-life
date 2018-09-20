@@ -12,8 +12,6 @@ const gameOfLife = function() {
   const editRel = document.querySelector('.alive-to-empty');
 
   let gamesCells;
-  let table;
-  let rows;
   
   const options = {
     _SPEEDCONST: 1050,
@@ -61,7 +59,7 @@ const gameOfLife = function() {
   //========================RENDER CUSTOM MAP=============================
   const renderMap = function(event) {
 
-    table = document.getElementById('table-of-life');
+    let table = document.getElementById('table-of-life');
     if (table) table.remove();
 
     const container = document.querySelector('.container');
@@ -100,7 +98,7 @@ const gameOfLife = function() {
   //==========================SET OPTIONS==================================
   const setOptions = function(savedOptions) {
     Object.keys(options).forEach((key) => {
-      options[key] = savedOptions[key];
+      if (key !== 'isRunning' && key !== 'gameTimer') options[key] = parseInt(savedOptions[key]);
     });
   };
 
@@ -173,59 +171,67 @@ const gameOfLife = function() {
   };
 
   //==============================START GAME===============================
-  const getAliveNum = function(row, col) {
-    let controlRow, controlCol;
+  const getAliveNum = function(index) {
+    const neighborhood = {};
     let liveCount = 0;
-    
-    for (let k = -1; k < 2; k += 1) {
-      for (let l = -1; l < 2; l += 1) {
-        if (k === 0 && l === 0) continue;
 
-        if (row === 0 && k === -1) {
-          controlRow = options.rowsValue - 1; 
-        } else if ((row === options.rowsValue - 1) && k === 1) {
-          controlRow = 0;
-        } else {
-          controlRow = row + k;
-        }
-        
-        if (col === 0 && l === -1) {
-          controlCol = options.colsValue - 1; 
-          } else if ((col === options.colsValue - 1) && l === 1) {
-            controlCol = 0;
-          } else {
-            controlCol = col + l;
-          }
+    if (index - options.colsValue < 0) {
+      neighborhood.topCenter = gamesCells.length - options.colsValue + index;
+    } else neighborhood.topCenter = index - options.colsValue;
 
-        if (rows[controlRow].cells[controlCol].classList.contains('alive')) liveCount += 1;
-      }
+    if (index + options.colsValue >= gamesCells.length) {
+      neighborhood.bottomCenter = options.colsValue - gamesCells.length % index;
+    } else neighborhood.bottomCenter = index + options.colsValue;
+
+    if (index % options.colsValue === 0) {
+      neighborhood.topLeft = neighborhood.bottomCenter + (options.colsValue - 1);
+      neighborhood.bottomLeft = index + (options.colsValue - 1);
+    } else {
+      neighborhood.topLeft = neighborhood.topCenter - 1;
+      neighborhood.bottomLeft = neighborhood.bottomCenter - 1;
     }
+
+    if (index % options.colsValue === options.colsValue - 1) {
+      neighborhood.topRight = index - (options.colsValue - 1);
+      neighborhood.bottomRight = neighborhood.topCenter - (options.colsValue - 1);
+    } else {
+      neighborhood.topRight = neighborhood.topCenter + 1;
+      neighborhood.bottomRight = neighborhood.bottomCenter + 1;
+    }
+
+    if (index === 0) {
+      neighborhood.centerLeft = gamesCells.length - 1;
+    } else neighborhood.centerLeft = index - 1;
+
+    if (index === gamesCells.length - 1) {
+      neighborhood.centerRight = 0;
+    } else neighborhood.centerRight = index + 1;
+
+    Object.keys(neighborhood).forEach((key) => {
+      if (gamesCells[neighborhood[key]].classList.contains('alive')) liveCount += 1;
+    });
 
     return liveCount;
   };
 
-  const isItWillLive = function(indexRow, indexCol) {
-    return (!rows[indexRow].cells[indexCol].classList.contains('alive') && (getAliveNum(indexRow, indexCol) === 3));
+  const isItWillLive = function(index) {
+    return (!gamesCells[index].classList.contains('alive') && (getAliveNum(index) === 3));
   };
 
-  const isItStillAlive = function(indexRow, indexCol) {
-    return (rows[indexRow].cells[indexCol].classList.contains('alive') && (getAliveNum(indexRow, indexCol) === 2 || getAliveNum(indexRow, indexCol) === 3));
+  const isItStillAlive = function(index) {
+    return (gamesCells[index].classList.contains('alive') && (getAliveNum(index) === 2 || getAliveNum(index) === 3));
   };
 
   const calcOneStep = function() {
-    let i, j;
     const maskArray = [];
 
-    for (i = 0; i < rows.length; i += 1) {
-      for (j = 0; j < rows[i].cells.length; j += 1) {
-        
-        if (isItWillLive(i, j)) {
-          maskArray.push(1);
-        } else if (isItStillAlive(i, j)) {
-          maskArray.push(1);
-        } else maskArray.push(0);
-      }
-    }
+    gamesCells.forEach((cell, index) => {
+      if (isItWillLive(index)) {
+        maskArray.push(1);
+      } else if (isItStillAlive(index)) {
+        maskArray.push(1);
+      } else maskArray.push(0);
+    });
     
     gamesCells.forEach((cell, index) => {
       if (parseInt(maskArray[index]) === 1) {
