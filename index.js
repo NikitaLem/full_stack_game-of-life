@@ -67,8 +67,8 @@ const gameOfLife = function() {
 
     if (event) {
       const target = event.target;
-      if (target === editRows) options.rowsValue = target.value;
-      if (target === editCols) options.colsValue = target.value;
+      if (target === editRows) options.rowsValue = parseInt(target.value);
+      if (target === editCols) options.colsValue = parseInt(target.value);
     }
 
     table = document.createElement('TABLE');
@@ -87,7 +87,6 @@ const gameOfLife = function() {
     }
 
     container.prepend(table);
-    rows = [...table.rows];
     gamesCells = [...document.querySelectorAll('.cell')];
 
     setSizes();
